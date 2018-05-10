@@ -1,5 +1,6 @@
 from cell import Cell
 from random import randint
+from PIL import Image, ImageDraw
 
 class Grid:
 	def __init__(self, rows, columns):
@@ -92,4 +93,30 @@ class Grid:
 	
 	def contents_of(self, cell):
 		return " "
+	
+	def to_png(self, filename, cell_size=20):
+		filename = 'images/' + filename
+		img_width = cell_size * self.columns + 1
+		img_height = cell_size * self.rows + 1
+		background_color = 'white'
+		wall_color = 0
+		
+		img = Image.new('RGB', (img_width, img_height), background_color)
+		draw = ImageDraw.Draw(img)
+		for cell in self.each_cell():
+			x1 = cell.column * cell_size
+			y1 = cell.row * cell_size
+			x2 = (cell.column + 1) * cell_size
+			y2 = (cell.row + 1) * cell_size
+			
+			if not cell.north:
+				draw.line((x1, y1, x2, y1), wall_color)
+			if not cell.west:
+				draw.line((x1, y1, x1, y2), wall_color)
+			if cell.east not in cell.links:
+				draw.line((x2, y1, x2, y2), wall_color)
+			if cell.south not in cell.links:
+				draw.line((x1, y2, x2, y2), wall_color)
+			
+		img.save(filename, 'PNG')
 	
